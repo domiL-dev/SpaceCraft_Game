@@ -135,6 +135,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ACCvector.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="LaserShot.cpp" />
     <ClCompile Include="SpaceCraft.cpp" />
     <ClCompile Include="Functions.cpp" />
@@ -144,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACCvector.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="LaserShot.h" />
     <ClInclude Include="SpaceCraft.h" />
     <ClInclude Include="Functions.h" />

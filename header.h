@@ -9,8 +9,8 @@
 #include <memory>
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 832;//640;
-const int SCREEN_HEIGHT = 624;//480;
+static int SCREEN_WIDTH = 1200;//832;//640;
+static int SCREEN_HEIGHT = 900;//624;//480;
 
 const double G = 6.674 * pow(10, -11);
 
