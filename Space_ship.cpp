@@ -12,9 +12,9 @@
 #include "LTimer.h"
 #include "Planet.h"
 #include "SpaceCraft.h"
+#include "Enemy.h"
 #include "ACCvector.h"
 #include "LaserShot.h"
-
 
 
 
@@ -41,6 +41,9 @@ LTexture gPlanetTexture;
 
 //Charakter-Spacecraft textures
 LTexture gSpaceCraftTexture;
+
+//Enemy-Spacecraft texture
+LTexture gEnemyTexture;
 
 int n = 0; 
 int m = 0;
@@ -80,7 +83,7 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		gWindow = SDL_CreateWindow("SpaceCraft_Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE);
 		if (gWindow == NULL)
 		{
 			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
@@ -133,6 +136,13 @@ bool loadMedia()
 		success = false;
 	}
 
+	//Load EnemySpaceCraft texture
+	if (!gEnemyTexture.loadFromFile("SpaceCraft_Game/Enemy_Texture_1.png"))
+	{
+		printf("Failed to load Enemy SpaceCraft texture!\n");
+		success = false;
+	}
+
 
 
 	//Load surface texture
@@ -161,6 +171,10 @@ void close()
 	IMG_Quit();
 	SDL_Quit();
 }
+
+//create Enemy
+
+Enemy enemy(0, 100);
 
 int main(int argc, char* args[])
 {
@@ -238,9 +252,22 @@ int main(int argc, char* args[])
 
 			if (Laser_fired) {
 				//create LaserShot Object when Space was pressed - store in specified vector - reset Flage
-				LaserShots.push_back(std::move(std::make_unique<LaserShot>(SpaceCraft.getCenterCoords(gSpaceCraftTexture), SpaceCraft.getLaserVelCoords())));
-				Laser_fired = false;
+				for (auto& element : LaserShots) {
+ 					if (element == nullptr) {
+						element = std::move(std::make_unique<LaserShot>(SpaceCraft.getCenterCoords(gSpaceCraftTexture), SpaceCraft.getLaserVelCoords()));
+						Laser_fired = false;
+						std::cout << &element << std::endl;
+					}
+ 				}
+				if (Laser_fired) {
+					LaserShots.push_back(std::move(std::make_unique<LaserShot>(SpaceCraft.getCenterCoords(gSpaceCraftTexture), SpaceCraft.getLaserVelCoords())));
+					Laser_fired = false;
+				}
+				
+				std::cout << "Size of LaserShots: " << LaserShots.size() << std::endl;
+				
 			}
+			
 			
 
 			//Move the SpaceCraft
@@ -260,12 +287,15 @@ int main(int argc, char* args[])
 				}
 			}
 
+			planet.render(gPlanetTexture);
+
 			//Render objects
 			SpaceCraft.render(gRenderer, gSpaceCraftTexture);
+			enemy.render(gRenderer, gEnemyTexture);
 			if (showAccVector) {
 				acceleration.render(gRenderer, gSpaceCraftTexture, gPlanetTexture, SpaceCraft, planet);
-			}
-			planet.render(gPlanetTexture);
+			} 
+			
 			//SpaceCraft.renderAccDirection(gRenderer);
 
 			
@@ -273,13 +303,14 @@ int main(int argc, char* args[])
 			//destroy Laser Shots when out of bounds
 			if (!LaserShots.empty()) {
 				for (auto& element : LaserShots) {
-					int x, y = 0;
+					
 					if (element != nullptr) {
+						int x, y = 0;
 						x = element->getX_bottom();
 						y = element->getY_bottom();
 
 						if (x < 0 || x > SCREEN_WIDTH || y < 0 || y > SCREEN_HEIGHT)
-							element.reset();
+ 							element.reset();
 					}
 					
 					
