@@ -1,2 +1,18 @@
-﻿  Space_ship.cpp
-  Motion.vcxproj -> C:\Users\Domin\source\repos\SpaceCraft_Game_\x64\Debug\SpaceCraft_Game.exe
+﻿  ACCvector.cpp
+C:\Users\Domin\source\repos\SpaceCraft_Game\ACCvector.cpp(12,9): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\ACCvector.cpp(13,9): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\ACCvector.cpp(58,9): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\ACCvector.cpp(59,9): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  LaserShot.cpp
+  SpaceCraft.cpp
+C:\Users\Domin\source\repos\SpaceCraft_Game\SpaceCraft.cpp(110,12): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\SpaceCraft.cpp(111,12): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\SpaceCraft.cpp(141,8): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\SpaceCraft.cpp(142,8): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  Functions.cpp
+  LTexture.cpp
+  Planet.cpp
+  Space_ship.cpp
+  Generating Code...
+  LINK : C:\Users\Domin\Source\Repos\SpaceCraft_Game\x64\Debug\SpaceCraft_Game.exe not found or not built by the last incremental link; performing full link
+  Motion.vcxproj -> C:\Users\Domin\Source\Repos\SpaceCraft_Game\x64\Debug\SpaceCraft_Game.exe
