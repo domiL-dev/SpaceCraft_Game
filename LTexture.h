@@ -38,8 +38,9 @@ public:
 	int getWidth();
 	int getHeight();
 
-	//Gets Center of image
+	//Gets Center X-Coords of image measured from mPosX
 	int getCenterX();
+	//Gets Center Y-Coords of image measured from mPosX
 	int getCenterY();
 
 

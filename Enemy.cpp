@@ -3,7 +3,7 @@
 #include <random>
 
 
-Enemy::Enemy(int x, int y) :mPosX{ x }, mPosY{ y } {
+Enemy::Enemy() :collision_detected{ false }, exploded{ false }, cnt_explosion{ 0 }, i{ 0 } {
 	//Generate random starting-Coords at boundaries and intitialize mPosX and mPoxY (starting Coords)
 	std::random_device rand; 
 	std::uniform_int_distribution<int> side_dist(1, 4),						//1= top, 2=bottom, 3=left, 4=right?
@@ -40,32 +40,76 @@ Enemy::Enemy(int x, int y) :mPosX{ x }, mPosY{ y } {
 	std::cout << mAlpha << std::endl;
 }
 
-void Enemy::render(SDL_Renderer* renderer, LTexture& gEnemyTexture) {
-	//Logic to maneuvre the Enemy Space-Craft to Planet-Center-Coords
-	if (delta_mPosX < 0 && delta_mPosX != 0) {
-	mPosX--; delta_mPosX++;
-    }
-	else if (delta_mPosX > 0 && delta_mPosX != 0) {
-		mPosX++; delta_mPosX--;
-	}
-	if (delta_mPosY < 0 && delta_mPosY != 0) {
-		mPosY--; delta_mPosY++;
-	}
-	else if (delta_mPosY > 0 && delta_mPosY != 0) {
-		mPosY++; delta_mPosY--;
-	}
-	//update Orientation towards Planet-Center-Coords in deg, depending on actual Enemy-Coords/delta to Center
-	mAlpha = 90 + atan2(delta_mPosY, delta_mPosX) * 180 / M_PI;
+void Enemy::render(SDL_Renderer* renderer, LTexture& gEnemyTexture,std::vector<LTexture>& gExplosionTexture) {
+	
+	//logic to render SpaceCraft or Explosion if Collison detected
+	if (!collision_detected) {
+		gEnemyTexture.render(mPosX, mPosY, NULL, mAlpha);
 
-	if (delta_mPosX == 0 && delta_mPosY == 0) {
-		mPosX = SCREEN_WIDTH;
-		mPosY = 300;
-		delta_mPosX = static_cast<int>(SCREEN_WIDTH / 2) - mPosX;
-		delta_mPosY = static_cast<int>(SCREEN_HEIGHT / 2) - mPosY;
-	}
+		//Logic to maneuvre the Enemy Space-Craft to Planet-Center-Coords
+		if (delta_mPosX < 0) {
+			mPosX--; delta_mPosX++;
+		}
+		else if (delta_mPosX > 0) {
+			mPosX++; delta_mPosX--;
+		}
 
-	gEnemyTexture.render(mPosX, mPosY, NULL, mAlpha);
+		if (delta_mPosY < 0) {
+			mPosY--; delta_mPosY++;
+		}
+		else if (delta_mPosY > 0) {
+			mPosY++; delta_mPosY--;
+		}
+		//update Orientation towards Planet-Center-Coords in deg, depending on actual Enemy-Coords/delta to Center
+		mAlpha = 90 + atan2(delta_mPosY, delta_mPosX) * 180 / M_PI;
+	}
+	if (collision_detected && !exploded) {
+		//if-Block to visualize the explosion in the Center of the SpaceRocket
+		if (cnt_explosion == 0 && i < gExplosionTexture.size()) {
+			mPosX += gEnemyTexture.getCenterX() - gExplosionTexture[i].getWidth() / 2;
+			mPosY += gEnemyTexture.getCenterY() - gExplosionTexture[i].getHeight() / 2;
+		}
+
+		//Change Size of Explosion every 10 frames
+		if (cnt_explosion % explosion_frame_intervall == 0) {
+			i = cnt_explosion / explosion_frame_intervall;
+
+			// if-Block to keep growing explosion at Position
+			if (cnt_explosion != 0 && i < gExplosionTexture.size()) {
+				mPosX -= gExplosionTexture[i].getWidth() / 2 - gExplosionTexture[i - 1].getWidth() / 2;
+				mPosY -= gExplosionTexture[i].getHeight() / 2 - gExplosionTexture[i - 1].getHeight() / 2;
+			}
+		}
+		if (i < gExplosionTexture.size()) {
+			gExplosionTexture[i].render(mPosX, mPosY);
+		}
+	
+		cnt_explosion++;
+	}
+	//set exploded flag true so the object can be destroyed
+	if (i == 4) {
+		exploded = true;
+	}
 }
 
+int Enemy::get_mPosX() {
+	return mPosX;
+}
+
+int Enemy::get_mPosY() {
+	return mPosY;
+}
+
+bool Enemy::get_collision_detected() {
+	return collision_detected;
+}
+
+void Enemy::set_collision_detected() {
+	collision_detected = true;
+}
+
+bool Enemy::get_exploded() {
+	return exploded;
+}
 
 

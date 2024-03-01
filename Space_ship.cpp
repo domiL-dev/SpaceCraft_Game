@@ -15,6 +15,7 @@
 #include "Enemy.h"
 #include "ACCvector.h"
 #include "LaserShot.h"
+#include "Enemy.h"
 
 
 
@@ -45,8 +46,17 @@ LTexture gSpaceCraftTexture;
 //Enemy-Spacecraft texture
 LTexture gEnemyTexture;
 
+//Explosion Texture Vector containing 4 objects 0->3 = small to big
+std::vector<LTexture> gExplosionTexture(4);
+
 int n = 0; 
 int m = 0;
+int cnt_Enemies = 0;
+int Enemies_at_once = 1;
+int Enemies_destroyed = 0;
+int spawning_delay = 100;
+bool Enemy_just_destroyed = false;
+int spawning_delay_counter = spawning_delay;
 
 
 
@@ -143,6 +153,16 @@ bool loadMedia()
 		success = false;
 	}
 
+	//Load Explosion texture
+	for (int i = 0; i < 4; i++) {
+		if (!gExplosionTexture[i].loadFromFile("SpaceCraft_Game/Explosion_" + std::to_string(i+1) + ".png"))
+		{
+			printf("Failed to load Explosion texture nr.!\n");
+			std::cout << std::to_string(i + 1) << std::endl;
+			success = false;
+		}
+	}
+
 
 
 	//Load surface texture
@@ -161,6 +181,9 @@ void close()
 	gSpaceCraftTexture.free();
 	gPlanetTexture.free();
 
+	for (auto& element : gExplosionTexture) {
+		element.free();
+	}
 	//Destroy window	
 	SDL_DestroyRenderer(gRenderer);
 	SDL_DestroyWindow(gWindow);
@@ -172,9 +195,6 @@ void close()
 	SDL_Quit();
 }
 
-//create Enemy
-
-Enemy enemy(0, 100);
 
 int main(int argc, char* args[])
 {
@@ -203,6 +223,11 @@ int main(int argc, char* args[])
 
 			//Vector for Laser Objects
 			std::vector <std::unique_ptr<LaserShot>> LaserShots;
+
+/*-----------------------------------------------------------------------*/
+			//Vector for Enemy Objects
+			std::vector <std::unique_ptr<Enemy>> Enemies;
+/*-----------------------------------------------------------------------*/
 
 			//Event handler
 			SDL_Event e;
@@ -249,14 +274,14 @@ int main(int argc, char* args[])
 				//SpaceCraft.rotation_Matrix();
 			}
 
-
-			if (Laser_fired) {
-				//create LaserShot Object when Space was pressed - store in specified vector - reset Flage
+/*_____________________________________________________________________________________________________________*/
+//create LaserShot Object when Space was pressed - store in specified vector - reset Flag
+				if (Laser_fired) {
 				for (auto& element : LaserShots) {
  					if (element == nullptr) {
 						element = std::move(std::make_unique<LaserShot>(SpaceCraft.getCenterCoords(gSpaceCraftTexture), SpaceCraft.getLaserVelCoords()));
 						Laser_fired = false;
-						std::cout << &element << std::endl;
+						//std::cout << &element << std::endl;
 					}
  				}
 				if (Laser_fired) {
@@ -264,10 +289,41 @@ int main(int argc, char* args[])
 					Laser_fired = false;
 				}
 				
-				std::cout << "Size of LaserShots: " << LaserShots.size() << std::endl;
+				//std::cout << "Size of LaserShots: " << LaserShots.size() << std::endl;
 				
 			}
-			
+/*_____________________________________________________________________________________________________________*/
+				if (Enemy_just_destroyed) {
+					
+					spawning_delay_counter--;
+					if (spawning_delay_counter == 0) {
+						Enemy_just_destroyed = false;
+						spawning_delay_counter = spawning_delay;
+					};
+			}
+
+            //create Enemy Object
+			if (cnt_Enemies < Enemies_at_once && !Enemy_just_destroyed) {
+				bool create_Enemy = true; // Flag for logic inside if Statement
+			//create LaserShot Object when Space was pressed - store in specified vector - reset Flage
+				for (auto& element : Enemies) {
+					if (element == nullptr) {
+						element = std::move(std::make_unique<Enemy>());
+						cnt_Enemies++;
+						create_Enemy = false;
+						//std::cout << &element << std::endl;
+					}
+				}
+				if (create_Enemy) {
+					Enemies.push_back(std::move(std::make_unique<Enemy>()));
+					cnt_Enemies++;
+					create_Enemy = false;
+				}
+				std::cout << "Size of Enemies: " << Enemies.size() << std::endl;
+				std::cout << "cnt_Enemies: " << cnt_Enemies << std::endl;
+			}
+/*_____________________________________________________________________________________________________________*/
+
 			
 
 			//Move the SpaceCraft
@@ -287,11 +343,20 @@ int main(int argc, char* args[])
 				}
 			}
 
+			// render Enemies
+			if (!Enemies.empty()) {
+				for (auto& element : Enemies) {
+					if (element != nullptr) {
+						element->render(gRenderer, gEnemyTexture, gExplosionTexture);
+					}
+				}
+			}
+
 			planet.render(gPlanetTexture);
 
 			//Render objects
 			SpaceCraft.render(gRenderer, gSpaceCraftTexture);
-			enemy.render(gRenderer, gEnemyTexture);
+		
 			if (showAccVector) {
 				acceleration.render(gRenderer, gSpaceCraftTexture, gPlanetTexture, SpaceCraft, planet);
 			} 
@@ -299,7 +364,7 @@ int main(int argc, char* args[])
 			//SpaceCraft.renderAccDirection(gRenderer);
 
 			
-
+/*_______________________________________________________________________________________________________*/
 			//destroy Laser Shots when out of bounds
 			if (!LaserShots.empty()) {
 				for (auto& element : LaserShots) {
@@ -311,11 +376,42 @@ int main(int argc, char* args[])
 
 						if (x < 0 || x > SCREEN_WIDTH || y < 0 || y > SCREEN_HEIGHT)
  							element.reset();
-					}
-					
-					
+					}	
 				}
 			} 
+/*_________________________________________________________________________________________________________*/
+			//destroy Enemy when collision detected
+			if (!Enemies.empty()) {
+				for (auto& element : Enemies) {
+
+					if (element != nullptr) {
+						int x, y = 0;
+						x = element->get_mPosX();
+						y = element->get_mPosY();
+
+						if (x < (SCREEN_WIDTH / 2 + 50) && x >(SCREEN_WIDTH / 2 - 50) && y < SCREEN_HEIGHT / 2 + 50 && y > SCREEN_HEIGHT / 2 - 50) {
+							element->set_collision_detected();
+						}
+						if(element->get_exploded()){
+							element.reset();
+							cnt_Enemies--;
+							Enemy_just_destroyed = true;
+							spawning_delay -= 10;
+							
+							
+							//increase Enemies spwaning at once after 10 destroyed Enemies
+							if (++Enemies_destroyed % 10 == 0 && Enemies_destroyed != 0) {
+								Enemies_at_once++;
+								spawning_delay = 100;
+							}
+							std::cout << "Enemies destroyed: " << Enemies_destroyed << std::endl;
+							std::cout << "spawning_delay: " << spawning_delay << std::endl;
+							std::cout << "Enemies at once: " << Enemies_at_once << std::endl;
+						}
+					}
+				}
+			}
+			
 			//avoid growing vector large in size
 			/* if (LaserShots.size() == 3) {
 				LaserShots.clear();
