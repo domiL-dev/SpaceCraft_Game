@@ -409,7 +409,7 @@ int main(int argc, char* args[])
 				for (auto& element : Enemies) {
 
 					if (element != nullptr) {
-						int x, y = 0;
+						int x, y{ 0 };
 						x = element->get_mPosX() + gEnemyTexture.getCenterX();
 						y = element->get_mPosY() + gEnemyTexture.getCenterY();
 

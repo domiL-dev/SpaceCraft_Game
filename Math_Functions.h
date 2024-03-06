@@ -6,6 +6,7 @@
 #include <Eigen/Geometry> 
 #include "header.h"
 #include "LTexture.h"
+#include "Enemy.h"
 
 //Enumeration list to select output for the Function Texture_Boundaries
 enum Output_Texture_Boundary { Top_X, Top_Y, Bottom_X, Bottom_Y, Right_X, Right_Y, Left_X, Left_Y };
@@ -19,3 +20,7 @@ enum Output_Texture_Boundary { Top_X, Top_Y, Bottom_X, Bottom_Y, Right_X, Right_
 int Texture_Boundaries(enum Output_Texture_Boundary value, int x, int y, double Orientation, LTexture& Texture);
 
 
+//determine whether the point lies within the area -> returns true or false
+//int x, y = point Coords wich will be tested
+//Objects of Type Enemy and LTexture neccessary to determine the area for collision detection 
+bool point_within_area(int x, int y, int A_x, int A_y, int B_x, int B_y, int D_x, int D_y);

@@ -1,2 +1,18 @@
-﻿  Space_ship.cpp
+﻿  Math_Functions.cpp
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(24,35): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(31,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(36,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(42,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(48,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(55,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(62,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(68,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(9,6): warning C4101: 'return_value': unreferenced local variable
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(76,10): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(77,10): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(78,10): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(79,10): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  Space_ship.cpp
+  Generating Code...
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(71): warning C4715: 'Texture_Boundaries': not all control paths return a value
   Motion.vcxproj -> C:\Users\Domin\Source\Repos\SpaceCraft_Game\x64\Debug\SpaceCraft_Game.exe
