@@ -100,6 +100,10 @@ int Enemy::get_mPosY() {
 	return mPosY;
 }
 
+double Enemy::get_mAlpha() {
+	return mAlpha;
+}
+
 bool Enemy::get_collision_detected() {
 	return collision_detected;
 }

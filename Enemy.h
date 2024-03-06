@@ -11,6 +11,8 @@ class Enemy
 	int get_mPosX();
 	//returns Y-Coordinates of Enemy
 	int get_mPosY();
+    //return Orientation of Enemy
+	double get_mAlpha();
 	//returns boolian whether collision detected or not
 	bool get_collision_detected();
 	//sets colliion_detected true

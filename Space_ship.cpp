@@ -8,6 +8,7 @@
 
 //Headers
 #include "header.h"
+#include "Math_Functions.h"
 #include "LTexture.h"
 #include "LTimer.h"
 #include "Planet.h"
@@ -16,6 +17,8 @@
 #include "ACCvector.h"
 #include "LaserShot.h"
 #include "Enemy.h"
+
+#include <cstdlib>
 
 
 
@@ -348,6 +351,28 @@ int main(int argc, char* args[])
 				for (auto& element : Enemies) {
 					if (element != nullptr) {
 						element->render(gRenderer, gEnemyTexture, gExplosionTexture);
+/*_________________________________________________________________________________________*/
+						//Purpose -> Collision detection, Visualize the skeleton => when laser hits the skelleton than sets collision_detected to true
+						int x1 = Texture_Boundaries(Bottom_X,element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+						int y1 = Texture_Boundaries(Bottom_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+						int x2 = Texture_Boundaries(Top_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+						int y2 = Texture_Boundaries(Top_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+
+						int vertical_x1 = Texture_Boundaries(Left_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+						int vertical_y1 = Texture_Boundaries(Left_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+						int vertical_x2 = Texture_Boundaries(Right_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+						int vertical_y2 = Texture_Boundaries(Right_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+						
+						//system("cls");
+						std::cout << element->get_mAlpha() << std::endl;
+						if (std::tan(element->get_mAlpha() * M_PI / 180) != INFINITY) {
+							std::cout << std::tan(element->get_mAlpha() * M_PI / 180) << std::endl;
+						}
+
+					    SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
+						SDL_RenderDrawLine(gRenderer, x1, y1, x2, y2);
+						SDL_RenderDrawLine(gRenderer, vertical_x1, vertical_y1, vertical_x2, vertical_y2);
+/*_________________________________________________________________________________________*/
 					}
 				}
 			}
@@ -362,8 +387,7 @@ int main(int argc, char* args[])
 			} 
 			
 			//SpaceCraft.renderAccDirection(gRenderer);
-
-			
+		
 /*_______________________________________________________________________________________________________*/
 			//destroy Laser Shots when out of bounds
 			if (!LaserShots.empty()) {
@@ -386,12 +410,15 @@ int main(int argc, char* args[])
 
 					if (element != nullptr) {
 						int x, y = 0;
-						x = element->get_mPosX();
-						y = element->get_mPosY();
+						x = element->get_mPosX() + gEnemyTexture.getCenterX();
+						y = element->get_mPosY() + gEnemyTexture.getCenterY();
 
+					//collision detection Enemey with Planet
 						if (x < (SCREEN_WIDTH / 2 + 50) && x >(SCREEN_WIDTH / 2 - 50) && y < SCREEN_HEIGHT / 2 + 50 && y > SCREEN_HEIGHT / 2 - 50) {
 							element->set_collision_detected();
 						}
+
+						
 						if(element->get_exploded()){
 							element.reset();
 							cnt_Enemies--;
