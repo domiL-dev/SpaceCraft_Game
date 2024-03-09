@@ -150,7 +150,7 @@ bool loadMedia()
 	}
 
 	//Load EnemySpaceCraft texture
-	if (!gEnemyTexture.loadFromFile("SpaceCraft_Game/Enemy_Texture_1.png"))
+	if (!gEnemyTexture.loadFromFile("SpaceCraft_Game/Enemy_Texture_2.png"))
 	{
 		printf("Failed to load Enemy SpaceCraft texture!\n");
 		success = false;
@@ -364,10 +364,10 @@ int main(int argc, char* args[])
 						int vertical_y2 = Texture_Boundaries(Right_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
 						
 						//system("cls");
-						std::cout << element->get_mAlpha() << std::endl;
+						/*std::cout << element->get_mAlpha() << std::endl;
 						if (std::tan(element->get_mAlpha() * M_PI / 180) != INFINITY) {
 							std::cout << std::tan(element->get_mAlpha() * M_PI / 180) << std::endl;
-						}
+						}*/
 
 					    SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
 						SDL_RenderDrawLine(gRenderer, x1, y1, x2, y2);
@@ -418,7 +418,41 @@ int main(int argc, char* args[])
 							element->set_collision_detected();
 						}
 
-						
+						//collision detection Enemy with Charakter SpaceCraft
+						int x_SpaceCraft = SpaceCraft.getmPosX() + gSpaceCraftTexture.getCenterX();
+						int y_SpaceCraft = SpaceCraft.getmPosY() + gSpaceCraftTexture.getCenterY();
+
+						/*if (abs(x - x_SpaceCraft) < gEnemyTexture.getWidth() / 2 + gSpaceCraftTexture.getWidth() / 2
+							&& abs(y - y_SpaceCraft) < gEnemyTexture.getHeight()/2 + gSpaceCraftTexture.getHeight()/2
+							&& !(element->get_collision_detected())) {
+						*/
+					
+						if(!(element->get_collision_detected())){
+							
+							int A_x = Texture_Boundaries(Bottom_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							int A_y = Texture_Boundaries(Bottom_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							
+							int B_x = Texture_Boundaries(Right_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							int B_y = Texture_Boundaries(Right_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+
+							int D_x = Texture_Boundaries(Left_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							int D_y = Texture_Boundaries(Left_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							
+							
+							if (point_within_area(x_SpaceCraft, y_SpaceCraft, A_x, A_y, B_x, B_y, D_x, D_y)) {
+								element->set_collision_detected();
+							}
+							for (auto& lasershot : LaserShots) {
+								if (lasershot != nullptr) {
+									x_SpaceCraft = lasershot->getX_top();
+									y_SpaceCraft = lasershot->getY_top();
+									//std::cout << "x_SpaceCraft: " << x_SpaceCraft << std::endl << "y_SpaceCraft: " << y_SpaceCraft << std::endl;
+									if (point_within_area(x_SpaceCraft, y_SpaceCraft, A_x, A_y, B_x, B_y, D_x, D_y))
+										element->set_collision_detected();
+								}
+							}
+						}
+					
 						if(element->get_exploded()){
 							element.reset();
 							cnt_Enemies--;

@@ -1,4 +1,5 @@
 #include "Math_Functions.h"
+#include <iostream>
 
 //int x, y = Position Coords of Texture,
 // double Orientation is the rotated Orientation of Texture in degree
@@ -72,19 +73,26 @@ int Texture_Boundaries(enum Output_Texture_Boundary value, int x, int y, double 
 
 
 // point_within_area determines whether a point is inside a area of a parallelogram -> details for equation see Notion or attached pdf in GitHub
-bool point_within_area(int P_x, int P_y, int A_x, int A_y, int B_x, int B_y, int D_x, int D_y ) {
-	float a = (P_x - A_x) / (B_x - A_x);
-	float b = (D_x - A_x) / (B_x - A_x);
-	float c = (P_y - A_y) / (D_y - A_y);
-	float d = (B_y - A_y) / (D_y - A_y);
+bool point_within_area(int& P_x, int& P_y, int& A_x, int& A_y, int& B_x, int& B_y, int& D_x, int& D_y ) {
+	if (B_x == A_x || D_y == A_y) {
+		return false;
+	}
+	double a = (P_x - A_x) / (B_x - A_x);
+	double b = (D_x - A_x) / (B_x - A_x);
+	double c = (P_y - A_y) / (D_y - A_y);
+	double d = (B_y - A_y) / (D_y - A_y);
 
-	float s = (b - a * d) / (1 - b * d);
-	float r = a - b * (b - a * d) / (1 - b * d);
+	double s = (c - a * d) / (1 - b * d);
+	double r = a - b * (c - a * d) / (1 - b * d);
 
-	if (r > 0 && r < 1 && s>0 && s < 1) {
+	
+
+	if (r > 0.0 && r < 1.0 && s > 0.0 && s < 1.0) {
+		std::cout << "s = " << s << "| r = " << r << std::endl;
 		return true;
 	}
 	else {
+		
 		return false;
 	}
 }

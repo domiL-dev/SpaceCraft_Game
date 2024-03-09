@@ -21,3 +21,11 @@ int LaserShot::getX_bottom(){
 int LaserShot::getY_bottom(){
 	return y_bottom;
 }
+
+int LaserShot::getX_top() {
+	return x_top;
+}
+
+int LaserShot::getY_top() {
+	return y_top;
+}
