@@ -1,3 +1,12 @@
-﻿  Enemy.cpp
-  LINK : C:\Users\Domin\source\repos\SpaceCraft_Game\x64\Debug\SpaceCraft_Game.exe not found or not built by the last incremental link; performing full link
+﻿  Math_Functions.cpp
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(25,35): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(32,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(37,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(43,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(49,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(56,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(63,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(69,36): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(10,6): warning C4101: 'return_value': unreferenced local variable
+C:\Users\Domin\source\repos\SpaceCraft_Game\Math_Functions.cpp(72): warning C4715: 'Texture_Boundaries': not all control paths return a value
   Motion.vcxproj -> C:\Users\Domin\source\repos\SpaceCraft_Game\x64\Debug\SpaceCraft_Game.exe

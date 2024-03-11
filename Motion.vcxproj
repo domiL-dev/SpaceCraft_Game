@@ -137,6 +137,7 @@
     <ClCompile Include="ACCvector.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="LaserShot.cpp" />
+    <ClCompile Include="Math_Functions.cpp" />
     <ClCompile Include="SpaceCraft.cpp" />
     <ClCompile Include="Functions.cpp" />
     <ClCompile Include="LTexture.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="ACCvector.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="LaserShot.h" />
+    <ClInclude Include="Math_Functions.h" />
     <ClInclude Include="SpaceCraft.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="header.h" />

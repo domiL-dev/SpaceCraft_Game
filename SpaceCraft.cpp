@@ -15,7 +15,7 @@ SpaceCraft::SpaceCraft() :mPosX{ SCREEN_WIDTH / 2 }, mPosY{ SCREEN_HEIGHT / 2 },
 }
 
 void SpaceCraft::rotation_Matrix() {
-	rotation.angle() = (mAlpha * M_PI) / 180.0; //Set the angle of the Rotation Matrix dependend on the orientation of the Spacecraft
+	rotation.angle() = mAlpha * M_PI / 180.0; //Set the angle of the Rotation Matrix dependend on the orientation of the Spacecraft
 
 	std::cout << mAlpha << ":mAlpha" << std::endl;
 	std::cout << VEL_VEC << ":VEL_VEC" << std::endl;
