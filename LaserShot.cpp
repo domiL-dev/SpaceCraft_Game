@@ -1,6 +1,6 @@
 #include "LaserShot.h"
 
-LaserShot::LaserShot(std::array<int,2> CenterCoords, std::array<int,2> LaserVelCoords) : x_top{CenterCoords.at(0) - LaserVelCoords.at(0)*10}, y_top{CenterCoords.at(1) - LaserVelCoords.at(1)*10}, x_bottom{CenterCoords.at(0)}, y_bottom{CenterCoords.at(1)}, vX{LaserVelCoords.at(0)}, vY(LaserVelCoords.at(1))
+LaserShot::LaserShot(std::array<int,2> CenterCoords, std::array<int,2> LaserVelCoords) : x_top{CenterCoords.at(0) - LaserVelCoords.at(0)*LaserShot_length}, y_top{CenterCoords.at(1) - LaserVelCoords.at(1)*LaserShot_length}, x_bottom{CenterCoords.at(0)}, y_bottom{CenterCoords.at(1)}, vX{LaserVelCoords.at(0)}, vY(LaserVelCoords.at(1))
 {
 
 }

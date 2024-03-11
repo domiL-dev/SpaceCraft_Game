@@ -53,13 +53,15 @@ LTexture gEnemyTexture;
 std::vector<LTexture> gExplosionTexture(4);
 
 int n = 0; 
-int m = 0;
+int frame_SDL_PollEvent = 0;
 int cnt_Enemies = 0;
 int Enemies_at_once = 1;
 int Enemies_destroyed = 0;
 int spawning_delay = 100;
 bool Enemy_just_destroyed = false;
 int spawning_delay_counter = spawning_delay;
+
+int delay_LaserShot = 5;
 
 
 
@@ -266,12 +268,12 @@ int main(int argc, char* args[])
 					}
 					else if (e.key.keysym.sym == SDLK_SPACE)
 					{
-						if (m > 5) {
+						if (frame_SDL_PollEvent > delay_LaserShot) {
 							Laser_fired = true;
-							m = 0;
+							frame_SDL_PollEvent = 0;
 						}
 				}
-					m++;
+					frame_SDL_PollEvent++;
 				//Handle input for the SpaceCraft
 				SpaceCraft.handleEvent(e);
 				//SpaceCraft.rotation_Matrix();
@@ -352,26 +354,29 @@ int main(int argc, char* args[])
 					if (element != nullptr) {
 						element->render(gRenderer, gEnemyTexture, gExplosionTexture);
 /*_________________________________________________________________________________________*/
-						//Purpose -> Collision detection, Visualize the skeleton => when laser hits the skelleton than sets collision_detected to true
-						int x1 = Texture_Boundaries(Bottom_X,element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int y1 = Texture_Boundaries(Bottom_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int x2 = Texture_Boundaries(Top_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int y2 = Texture_Boundaries(Top_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
 
-						int vertical_x1 = Texture_Boundaries(Left_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int vertical_y1 = Texture_Boundaries(Left_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int vertical_x2 = Texture_Boundaries(Right_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int vertical_y2 = Texture_Boundaries(Right_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						
-						//system("cls");
-						/*std::cout << element->get_mAlpha() << std::endl;
-						if (std::tan(element->get_mAlpha() * M_PI / 180) != INFINITY) {
-							std::cout << std::tan(element->get_mAlpha() * M_PI / 180) << std::endl;
-						}*/
+						if (showAccVector) {
+							//Purpose -> Collision detection, Visualize the skeleton => when laser hits the skelleton than sets collision_detected to true
+							int x1 = Texture_Boundaries(Bottom_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							int y1 = Texture_Boundaries(Bottom_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							int x2 = Texture_Boundaries(Top_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							int y2 = Texture_Boundaries(Top_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
 
-					    SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
-						SDL_RenderDrawLine(gRenderer, x1, y1, x2, y2);
-						SDL_RenderDrawLine(gRenderer, vertical_x1, vertical_y1, vertical_x2, vertical_y2);
+							int vertical_x1 = Texture_Boundaries(Left_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							int vertical_y1 = Texture_Boundaries(Left_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							int vertical_x2 = Texture_Boundaries(Right_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+							int vertical_y2 = Texture_Boundaries(Right_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+
+							//system("cls");
+							/*std::cout << element->get_mAlpha() << std::endl;
+							if (std::tan(element->get_mAlpha() * M_PI / 180) != INFINITY) {
+								std::cout << std::tan(element->get_mAlpha() * M_PI / 180) << std::endl;
+							}*/
+
+							SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
+							SDL_RenderDrawLine(gRenderer, x1, y1, x2, y2);
+							SDL_RenderDrawLine(gRenderer, vertical_x1, vertical_y1, vertical_x2, vertical_y2);
+						}
 /*_________________________________________________________________________________________*/
 					}
 				}
