@@ -5,6 +5,7 @@
 #include <SDL_image.h>
 #include <stdio.h>
 #include <string>
+#include <SDL_ttf.h>
 
 //Headers
 #include "header.h"
@@ -17,6 +18,7 @@
 #include "ACCvector.h"
 #include "LaserShot.h"
 #include "Enemy.h"
+#include "UI.h"
 
 #include <cstdlib>
 
@@ -49,8 +51,17 @@ LTexture gSpaceCraftTexture;
 //Enemy-Spacecraft texture
 LTexture gEnemyTexture;
 
+//Counter Enemies destroyed
+LTexture gEnemies_Destroyed_Texture;
+
+//Digits 0-9 Texture vector
+std::vector<LTexture> gDigits_Texture(10);
+
 //Explosion Texture Vector containing 4 objects 0->3 = small to big
 std::vector<LTexture> gExplosionTexture(4);
+
+//Create UI object
+UI gUI;
 
 int n = 0; 
 int frame_SDL_PollEvent = 0;
@@ -62,6 +73,9 @@ bool Enemy_just_destroyed = false;
 int spawning_delay_counter = spawning_delay;
 
 int delay_LaserShot = 5;
+
+//Text to display
+std::wstring cnt_Enemies_text = L"ENEMIES DESTROYED : ";
 
 
 
@@ -87,6 +101,11 @@ bool init()
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+		success = false;
+	}
+	//Initialize SDL_tff
+	else if (TTF_Init()) {
+		printf("SDL tff could not initialize! SDL Error: %s\n", SDL_GetError());
 		success = false;
 	}
 	else
@@ -167,7 +186,22 @@ bool loadMedia()
 			success = false;
 		}
 	}
+	//Load Text Texture (ENEMIES DESTROYED : )
+	if (!gEnemies_Destroyed_Texture.loadFontFromFile("SpaceCraft_Game/fonts/Air_Americana.ttf", cnt_Enemies_text)) {
+		printf("Failed to load Enemies destroyed counter texture!\n");
+			success = false;
+	}
 
+	//Load digit Texture
+	for (int i = 0; i < gDigits_Texture.size(); i++) {
+
+		std::wstring Digit = std::to_wstring(i);
+
+		if (!gDigits_Texture[i].loadFontFromFile("SpaceCraft_Game/fonts/Air_Americana.ttf", Digit)){
+			printf("Failed to load Digit texture!\n");
+				success = false;
+	    }
+	}
 
 
 	//Load surface texture
@@ -221,7 +255,7 @@ int main(int argc, char* args[])
 			bool quit = false;
 
 			//Acceleration Vector Visualisation flag
-			bool showAccVector = true;
+			bool showAccVector = false;
 
 			//Flag to create a Laser Object
 			bool Laser_fired = false;
@@ -459,6 +493,9 @@ int main(int argc, char* args[])
 						}
 					
 						if(element->get_exploded()){
+
+							gUI.increment_cnt_Enemies_Destroyed();
+
 							element.reset();
 							cnt_Enemies--;
 							Enemy_just_destroyed = true;
@@ -470,20 +507,24 @@ int main(int argc, char* args[])
 								Enemies_at_once++;
 								spawning_delay = 100;
 							}
-							std::cout << "Enemies destroyed: " << Enemies_destroyed << std::endl;
+							/*std::cout << "Enemies destroyed: " << Enemies_destroyed << std::endl;
 							std::cout << "spawning_delay: " << spawning_delay << std::endl;
-							std::cout << "Enemies at once: " << Enemies_at_once << std::endl;
+							std::cout << "Enemies at once: " << Enemies_at_once << std::endl;*/
 						}
 					}
 				}
 			}
 			
+			gUI.render_cnt_Enemies_Destroyed(gEnemies_Destroyed_Texture, gDigits_Texture);
+
 			//avoid growing vector large in size
 			/* if (LaserShots.size() == 3) {
 				LaserShots.clear();
 			}
 			std::cout << "LaserShots - Size: " << LaserShots.size() << std::endl;
 			*/
+			
+			
 
 			//Update screen
 			SDL_RenderPresent(gRenderer);

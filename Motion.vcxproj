@@ -72,8 +72,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>C:\VC_lib\SDL2-2.28.5\lib\x64;C:\VC_lib\SDL2_image-2.8.0\lib\x64;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\VC_lib\SDL2_image-2.8.0\include;C:\VC_lib\SDL2-2.28.5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\VC_lib\SDL2-2.28.5\lib\x64;C:\VC_lib\SDL2_image-2.8.0\lib\x64;C:\VC_lib\SDL2_ttf-2.22.0\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\VC_lib\SDL2_image-2.8.0\include;C:\VC_lib\SDL2-2.28.5\include;C:\VC_lib\SDL2_ttf-2.22.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -109,12 +109,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VC_lib\SDL2-2.28.5\include;C:\VC_lib\eigen-3.4.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VC_lib\SDL2-2.28.5\include;C:\VC_lib\eigen-3.4.0;C:\VC_lib\SDL2_ttf-2.22.0\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,6 +144,7 @@
     <ClCompile Include="LTexture.cpp" />
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="Space_ship.cpp" />
+    <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACCvector.h" />
@@ -156,6 +158,7 @@
     <ClInclude Include="LTimer.h" />
     <ClInclude Include="Planet.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="UI.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SpaceCraft_Game.rc" />

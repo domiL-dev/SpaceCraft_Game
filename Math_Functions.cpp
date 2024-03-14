@@ -88,7 +88,7 @@ bool point_within_area(int& P_x, int& P_y, int& A_x, int& A_y, int& B_x, int& B_
 	
 
 	if (r > 0.0l && r < 1.0l && s > 0.0l && s < 1.0l) {
- 		std::cout << "s = " << s << "| r = " << r << std::endl;
+ 		//std::cout << "s = " << s << "| r = " << r << std::endl;
 		return true;
 	}
 	else {
