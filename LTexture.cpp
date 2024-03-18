@@ -67,7 +67,7 @@ bool LTexture::loadFontFromFile(std::string path, std::wstring &text)
 	//Load Font at specified path
 	TTF_Font* font = TTF_OpenFont(path.c_str(), 32);
 
-	SDL_Surface* loadedSurface = TTF_RenderUNICODE_Blended_Wrapped(font, (const Uint16*)text.c_str(), SDL_Color{255, 255, 255, 255}, 300);
+	SDL_Surface* loadedSurface = TTF_RenderUNICODE_Blended_Wrapped(font, (const Uint16*)text.c_str(), SDL_Color{255, 255, 255, 255}, 400);
 	if (loadedSurface == NULL)
 	{
 		printf("Unable to load Font %s! SDL_tff Error: %s\n", path.c_str(), IMG_GetError());

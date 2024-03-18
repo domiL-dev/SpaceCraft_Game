@@ -11,9 +11,13 @@ class ACCvector
 	ACCvector();
 
 	void render(SDL_Renderer* renderer, LTexture& gSpaceCraftTexture, LTexture& gPlanetTexture, SpaceCraft& SpaceCraft, Planet& Planet);
+	
+	void toggle_showAccVector();
 
+	bool get_showAccVector();
 
 private:
-	
+	//Acceleration Vector Visualisation flag
+	bool showAccVector;
 };
 

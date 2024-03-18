@@ -1,7 +1,10 @@
 #include "UI.h"
 
+#include <iostream>
 
-UI::UI() :cnt_Enemies_Destroyed{ 0 }, 
+
+UI::UI(SDL_Renderer* renderer) : m_renderer{renderer},
+		  cnt_Enemies_Destroyed{ 0 }, health_bar{NULL},
 		  posX_Enemies_Destroyed_Texture{ 30 }, posY{ 30 },
 		  posX_tens{ 0} , 
 		  posX_ones{ 0 },
@@ -13,6 +16,14 @@ UI::UI() :cnt_Enemies_Destroyed{ 0 },
 
 UI::~UI() {
 
+}
+
+//render health bar
+void UI::render_health_bar(Uint8 health) {
+	SDL_Rect bar{ 800, 800, health, 10, };
+	health_bar = &bar;
+	SDL_SetRenderDrawColor(this->m_renderer, 255, 0, 0, 255);
+	SDL_RenderDrawRect(this->m_renderer, health_bar);
 }
 
 //render Enemies Destroyed Counter

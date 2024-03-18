@@ -3,7 +3,9 @@
 #include <random>
 
 
-Enemy::Enemy() :collision_detected{ false }, exploded{ false }, cnt_explosion{ 0 }, i{ 0 } {
+Enemy::Enemy() :collision_detected{ false }, collision_with_lasershot{false}, collision_with_spacecraft{false}, collision_with_planet{false},
+				exploded{ false }, cnt_explosion{ 0 }, i{ 0 } 
+{
 	//Generate random starting-Coords at boundaries and intitialize mPosX and mPoxY (starting Coords)
 	std::random_device rand; 
 	std::uniform_int_distribution<int> side_dist(1, 4),						//1= top, 2=bottom, 3=left, 4=right?
@@ -36,8 +38,8 @@ Enemy::Enemy() :collision_detected{ false }, exploded{ false }, cnt_explosion{ 0
 
 	//Calculate Enemy Spacecraft starting Orientation
 	mAlpha = 90+atan2(delta_mPosY,delta_mPosX)*180/M_PI;
-	std::cout << delta_mPosY << "/" << delta_mPosX << std::endl;
-	std::cout << mAlpha << std::endl;
+	//std::cout << delta_mPosY << "/" << delta_mPosX << std::endl;
+	//std::cout << mAlpha << std::endl;
 }
 
 void Enemy::render(SDL_Renderer* renderer, LTexture& gEnemyTexture,std::vector<LTexture>& gExplosionTexture) {
@@ -110,6 +112,31 @@ bool Enemy::get_collision_detected() {
 
 void Enemy::set_collision_detected() {
 	collision_detected = true;
+}
+
+void Enemy::set_collision_with_lasershot() {
+	collision_with_lasershot = true;
+}
+
+void Enemy::set_collision_with_spacecraft() {
+	collision_with_spacecraft = true;
+	}
+
+void Enemy::set_collision_with_planet() {
+	collision_with_planet = true;
+}
+
+enum collision_type Enemy::get_collision_type() {
+	if (collision_with_lasershot)
+		return with_lasershot;
+
+	else if (collision_with_spacecraft)
+		return with_spacecraft;
+
+	else if (collision_with_planet)
+		return with_planet;
+	else
+		return no_collision;
 }
 
 bool Enemy::get_exploded() {

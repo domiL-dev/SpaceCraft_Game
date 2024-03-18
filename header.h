@@ -21,6 +21,9 @@ const double G = 6.674 * pow(10, -11);
 //length faktor vor Visualizing Acceleration Vektors
 const double AccLengthFaktor = 10.0;
 
+//enumerations
+enum collision_type {no_collision, with_lasershot, with_spacecraft, with_planet, with_enemy};
+
 
 // Declare extern variables
 extern SDL_Window* gWindow;

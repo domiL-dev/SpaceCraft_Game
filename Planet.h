@@ -21,7 +21,15 @@ public:
 	//Shows the Planet on the screen
 	void render(LTexture& gPlanetTexture);
 
+	//returns Planet health
+	Uint8 get_health();
+
+	//decrease health trough damage
+	void damage(collision_type type);
+
 private:
 	int mPosX, mPosY;
+
+	int health;
 };
 
