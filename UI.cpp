@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-UI::UI(SDL_Renderer* renderer) : m_renderer{renderer},
+UI::UI() : m_renderer{NULL}, m_window{NULL},
 		  cnt_Enemies_Destroyed{ 0 }, health_bar{NULL},
 		  posX_Enemies_Destroyed_Texture{ 30 }, posY{ 30 },
 		  posX_tens{ 0} , 
@@ -27,14 +27,14 @@ void UI::render_health_bar(Uint8 health) {
 }
 
 //render Enemies Destroyed Counter
-void UI::render_cnt_Enemies_Destroyed(LTexture& gEnemies_Destroyed_Texture, std::vector<LTexture>& gDigits_Texture) {
+void UI::render_cnt_Enemies_Destroyed(LTexture& Enemies_Destroyed_Text_Texture, std::vector<LTexture>& gDigits_Texture) {
 
-	gEnemies_Destroyed_Texture.render(posX_Enemies_Destroyed_Texture, posY);
+	Enemies_Destroyed_Text_Texture.render(posX_Enemies_Destroyed_Texture, posY);
 
 	if (cnt_Enemies_Destroyed < 10 ) {
 
 		if (firstTime_in_ones) {
-			posX_ones = posX_Enemies_Destroyed_Texture + gEnemies_Destroyed_Texture.getWidth();
+			posX_ones = posX_Enemies_Destroyed_Texture + Enemies_Destroyed_Text_Texture.getWidth();
 			firstTime_in_ones = false;
 		}
 		gDigits_Texture[cnt_Enemies_Destroyed].render(posX_ones, posY);
@@ -72,3 +72,74 @@ void UI::reset_cnt_Enemies_Destroyed() {
 
 	cnt_Enemies_Destroyed = 0;
 }
+
+bool UI::init()
+{
+	//Initialization flag
+	bool success = true;
+
+	//Initialize SDL
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+		success = false;
+	}
+	//Initialize SDL_tff
+	else if (TTF_Init()) {
+		printf("SDL tff could not initialize! SDL Error: %s\n", SDL_GetError());
+		success = false;
+	}
+	else
+	{
+		//Set texture filtering to linear
+		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
+		{
+			printf("Warning: Linear texture filtering not enabled!");
+		}
+
+		//Create window
+		m_window = SDL_CreateWindow("SpaceCraft_Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE);
+		if (m_window == NULL)
+		{
+			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+			success = false;
+		}
+		else
+		{
+			//Create vsynced renderer for window
+			m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			if (m_renderer == NULL)
+			{
+				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+				success = false;
+			}
+			else
+			{
+				//Initialize renderer color
+				SDL_SetRenderDrawColor(m_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
+				//Initialize PNG loading
+				int imgFlags = IMG_INIT_PNG;
+				if (!(IMG_Init(imgFlags) & imgFlags))
+				{
+					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+					success = false;
+				}
+			}
+		}
+	}
+
+	return success;
+}
+
+
+SDL_Renderer* UI::get_m_renderer() {
+	return m_renderer;
+}
+
+SDL_Window* UI::get_m_window() {
+	return m_window;
+}
+
+
+

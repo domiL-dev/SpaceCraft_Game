@@ -25,7 +25,7 @@
 
 
 //Starts up SDL and creates window
-bool init();
+//bool init();
 
 //Loads media
 bool loadMedia();
@@ -41,6 +41,11 @@ SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
+//Create UI object
+UI gUI;
+
+
+
 //Scene textures
 LTexture gPlanetTexture;
 
@@ -52,7 +57,7 @@ LTexture gSpaceCraftTexture;
 LTexture gEnemyTexture;
 
 //Counter Enemies destroyed
-LTexture gEnemies_Destroyed_Texture;
+LTexture Enemies_Destroyed_Text_Texture;
 
 //Start Game text Texture
 LTexture gStart_Game_Texture;
@@ -63,8 +68,7 @@ std::vector<LTexture> gDigits_Texture(10);
 //Explosion Texture Vector containing 4 objects 0->3 = small to big
 std::vector<LTexture> gExplosionTexture(4);
 
-//Create UI object
-UI gUI(gRenderer);
+
 
 int n = 0; 
 int frame_SDL_PollEvent = 0;
@@ -97,7 +101,7 @@ std::wstring start_Game_text = L"Press Enter to start Game";
 
 //_______________________________________________________________
 
-
+/* bool init()
 bool init()
 {
 	//Initialization flag
@@ -156,9 +160,16 @@ bool init()
 
 	return success;
 }
+*/
 
 bool loadMedia()
 {
+	//Text to display
+	std::wstring cnt_Enemies_text = L"ENEMIES DESTROYED : ";
+
+	//Text start game
+	std::wstring start_Game_text = L"Press Enter to start Game";
+
 	//Loading success flag
 	bool success = true;
 
@@ -193,7 +204,7 @@ bool loadMedia()
 		}
 	}
 	//Load Text Texture (ENEMIES DESTROYED : )
-	if (!gEnemies_Destroyed_Texture.loadFontFromFile("SpaceCraft_Game/fonts/Air_Americana.ttf", cnt_Enemies_text)) {
+	if (!Enemies_Destroyed_Text_Texture.loadFontFromFile("SpaceCraft_Game/fonts/Air_Americana.ttf", cnt_Enemies_text)) {
 		printf("Failed to load Enemies destroyed counter texture!\n");
 			success = false;
 	}
@@ -231,7 +242,7 @@ void close()
 	//Free loaded images
 	gSpaceCraftTexture.free();
 	gPlanetTexture.free();
-	gEnemies_Destroyed_Texture.free();
+	Enemies_Destroyed_Text_Texture.free();
 
 	for (auto& element : gDigits_Texture) {
 			element.free();
@@ -255,12 +266,15 @@ void close()
 int main(int argc, char* args[])
 {
 	//Start up SDL and create window
-	if (!init())
+	if (!gUI.init())
 	{
 		printf("Failed to initialize!\n");
 	}
 	else
-	{
+	{	
+		//for test/experiment purpose
+		gWindow = gUI.get_m_window();
+		gRenderer = gUI.get_m_renderer();
 		//Load media
 		if (!loadMedia())
 		{
@@ -288,7 +302,7 @@ int main(int argc, char* args[])
 			SDL_Event e;
 
 			//Create UI object
-			UI gUI(gRenderer);
+			//UI gUI();
 
 			//The SpaceCraft that will be moving around on the screen
 			SpaceCraft SpaceCraft;
@@ -501,8 +515,8 @@ int main(int argc, char* args[])
 									//collision detection Enemey with Planet
 									if (x < (SCREEN_WIDTH / 2 + 50) && x >(SCREEN_WIDTH / 2 - 50) && y < SCREEN_HEIGHT / 2 + 50 && y > SCREEN_HEIGHT / 2 - 50) {
 										element->set_collision_detected();
-										element->set_collision_with_planet();
-										planet.damage(with_enemy);
+										element->set_collision_with_enemy();
+										
 										std::cout << "health : " << static_cast<int>(planet.get_health());
 									}
 
@@ -566,6 +580,9 @@ int main(int argc, char* args[])
 											break;
 
 										}
+										if (element->get_collision_type() == with_enemy) {
+											planet.damage(with_enemy);
+										}
 										element.reset();
 										cnt_Enemies--;
 										Enemy_just_destroyed = true;
@@ -585,7 +602,7 @@ int main(int argc, char* args[])
 							}
 						}
 
-						gUI.render_cnt_Enemies_Destroyed(gEnemies_Destroyed_Texture, gDigits_Texture);
+						gUI.render_cnt_Enemies_Destroyed(Enemies_Destroyed_Text_Texture, gDigits_Texture);
 
 						gUI.render_health_bar(planet.get_health());
 

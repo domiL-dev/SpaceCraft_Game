@@ -126,6 +126,10 @@ void Enemy::set_collision_with_planet() {
 	collision_with_planet = true;
 }
 
+void Enemy::set_collision_with_enemy() {
+	collision_with_enemy = true;
+}
+
 enum collision_type Enemy::get_collision_type() {
 	if (collision_with_lasershot)
 		return with_lasershot;
@@ -135,6 +139,9 @@ enum collision_type Enemy::get_collision_type() {
 
 	else if (collision_with_planet)
 		return with_planet;
+
+	else if (collision_with_enemy)
+		return with_enemy;
 	else
 		return no_collision;
 }

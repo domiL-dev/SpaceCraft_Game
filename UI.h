@@ -7,16 +7,19 @@ class UI
 {	
 public:
 	//initialize UI Data
-	UI(SDL_Renderer* renderer);
+	UI();
 
 	//frees UI Data
 	~UI();
+
+	// initiialize UI
+	bool init();
 
 	//render health bar
 	void render_health_bar(Uint8 health);
 
 	//render Enemies Destroyed Counter
-	void render_cnt_Enemies_Destroyed(LTexture& gEnemies_Destroyed_Texture, std::vector<LTexture>& gDigits_Texture);
+	void render_cnt_Enemies_Destroyed(LTexture& Enemies_Destroyed_Text_Texture, std::vector<LTexture>& gDigits_Texture);
 
 	//increment Enemies Destroyed Counter
 	void increment_cnt_Enemies_Destroyed();
@@ -24,9 +27,14 @@ public:
 	//reset Enemies Destroyed Counter(;
 	void reset_cnt_Enemies_Destroyed();
 
+	SDL_Renderer* get_m_renderer();
+	SDL_Window* get_m_window();
+
 private:
 
 	SDL_Renderer* m_renderer;
+	SDL_Window* m_window;
+
 
 	/*Data to visualize Game Progress during playing*/
 	int cnt_Enemies_Destroyed; 
