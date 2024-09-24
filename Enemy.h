@@ -16,7 +16,9 @@ class Enemy
 	//returns boolian whether collision detected or not
 	bool get_collision_detected();
 	//sets colliion_detected true
-	void set_collision_detected();
+	void set_collision_detected(), set_collision_with_lasershot(), set_collision_with_spacecraft(), set_collision_with_planet(), set_collision_with_enemy();
+	//returns collision type to handle UI and gameplay
+	enum collision_type get_collision_type();
 	//returns status if the spaceCraft is finally exploded
 	bool get_exploded();
 
@@ -26,7 +28,7 @@ private:
 	//Orientation of Enemy Spacecraft
 	double mAlpha;
 	//Flag: Collision detected
-	bool collision_detected;
+	bool collision_detected, collision_with_lasershot, collision_with_spacecraft, collision_with_planet, collision_with_enemy;
 	//Flag: visual effect finished ready to destroy object
 	bool exploded;
 	//counter to visualize explosion

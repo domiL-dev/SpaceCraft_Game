@@ -5,6 +5,7 @@
 #include <SDL_image.h>
 #include <stdio.h>
 #include <string>
+#include <SDL_ttf.h>
 
 //Headers
 #include "header.h"
@@ -17,13 +18,14 @@
 #include "ACCvector.h"
 #include "LaserShot.h"
 #include "Enemy.h"
+#include "UI.h"
 
 #include <cstdlib>
 
 
 
 //Starts up SDL and creates window
-bool init();
+//bool init();
 
 //Loads media
 bool loadMedia();
@@ -39,6 +41,11 @@ SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
+//Create UI object
+UI gUI;
+
+
+
 //Scene textures
 LTexture gPlanetTexture;
 
@@ -49,17 +56,36 @@ LTexture gSpaceCraftTexture;
 //Enemy-Spacecraft texture
 LTexture gEnemyTexture;
 
+//Counter Enemies destroyed
+LTexture Enemies_Destroyed_Text_Texture;
+
+//Start Game text Texture
+LTexture gStart_Game_Texture;
+
+//Digits 0-9 Texture vector
+std::vector<LTexture> gDigits_Texture(10);
+
 //Explosion Texture Vector containing 4 objects 0->3 = small to big
 std::vector<LTexture> gExplosionTexture(4);
 
+
+
 int n = 0; 
-int m = 0;
+int frame_SDL_PollEvent = 0;
 int cnt_Enemies = 0;
 int Enemies_at_once = 1;
 int Enemies_destroyed = 0;
 int spawning_delay = 100;
 bool Enemy_just_destroyed = false;
 int spawning_delay_counter = spawning_delay;
+
+int delay_LaserShot = 5;
+
+//Text to display
+std::wstring cnt_Enemies_text = L"ENEMIES DESTROYED : ";
+
+//Text start game
+std::wstring start_Game_text = L"Press Enter to start Game";
 
 
 
@@ -75,7 +101,7 @@ int spawning_delay_counter = spawning_delay;
 
 //_______________________________________________________________
 
-
+/* bool init()
 bool init()
 {
 	//Initialization flag
@@ -85,6 +111,11 @@ bool init()
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+		success = false;
+	}
+	//Initialize SDL_tff
+	else if (TTF_Init()) {
+		printf("SDL tff could not initialize! SDL Error: %s\n", SDL_GetError());
 		success = false;
 	}
 	else
@@ -129,9 +160,16 @@ bool init()
 
 	return success;
 }
+*/
 
 bool loadMedia()
 {
+	//Text to display
+	std::wstring cnt_Enemies_text = L"ENEMIES DESTROYED : ";
+
+	//Text start game
+	std::wstring start_Game_text = L"Press Enter to start Game";
+
 	//Loading success flag
 	bool success = true;
 
@@ -165,7 +203,28 @@ bool loadMedia()
 			success = false;
 		}
 	}
+	//Load Text Texture (ENEMIES DESTROYED : )
+	if (!Enemies_Destroyed_Text_Texture.loadFontFromFile("SpaceCraft_Game/fonts/Air_Americana.ttf", cnt_Enemies_text)) {
+		printf("Failed to load Enemies destroyed counter texture!\n");
+			success = false;
+	}
 
+	//Load Text Texture (ENEMIES DESTROYED : )
+	if (!gStart_Game_Texture.loadFontFromFile("SpaceCraft_Game/fonts/Air_Americana.ttf", start_Game_text)) {
+		printf("Failed to load start Game text texture!\n");
+		success = false;
+	}
+
+	//Load digit Texture
+	for (int i = 0; i < gDigits_Texture.size(); i++) {
+
+		std::wstring Digit = std::to_wstring(i);
+
+		if (!gDigits_Texture[i].loadFontFromFile("SpaceCraft_Game/fonts/Air_Americana.ttf", Digit)){
+			printf("Failed to load Digit texture!\n");
+				success = false;
+	    }
+	}
 
 
 	//Load surface texture
@@ -183,6 +242,11 @@ void close()
 	//Free loaded images
 	gSpaceCraftTexture.free();
 	gPlanetTexture.free();
+	Enemies_Destroyed_Text_Texture.free();
+
+	for (auto& element : gDigits_Texture) {
+			element.free();
+	}
 
 	for (auto& element : gExplosionTexture) {
 		element.free();
@@ -202,12 +266,15 @@ void close()
 int main(int argc, char* args[])
 {
 	//Start up SDL and create window
-	if (!init())
+	if (!gUI.init())
 	{
 		printf("Failed to initialize!\n");
 	}
 	else
-	{
+	{	
+		//for test/experiment purpose
+		gWindow = gUI.get_m_window();
+		gRenderer = gUI.get_m_renderer();
 		//Load media
 		if (!loadMedia())
 		{
@@ -218,8 +285,7 @@ int main(int argc, char* args[])
 			//Main loop flag
 			bool quit = false;
 
-			//Acceleration Vector Visualisation flag
-			bool showAccVector = true;
+			
 
 			//Flag to create a Laser Object
 			bool Laser_fired = false;
@@ -227,15 +293,16 @@ int main(int argc, char* args[])
 			//Vector for Laser Objects
 			std::vector <std::unique_ptr<LaserShot>> LaserShots;
 
-/*-----------------------------------------------------------------------*/
-			//Vector for Enemy Objects
+			/*-----------------------------------------------------------------------*/
+						//Vector for Enemy Objects
 			std::vector <std::unique_ptr<Enemy>> Enemies;
-/*-----------------------------------------------------------------------*/
+			/*-----------------------------------------------------------------------*/
 
-			//Event handler
+						//Event handler
 			SDL_Event e;
 
-
+			//Create UI object
+			//UI gUI();
 
 			//The SpaceCraft that will be moving around on the screen
 			SpaceCraft SpaceCraft;
@@ -246,254 +313,323 @@ int main(int argc, char* args[])
 			//Accelration Vectors
 			ACCvector acceleration;
 
+			//Flags for Menu logic
+			bool menu = true;
+			bool gameloop = false;
 
-
-			//While application is running
-			while (!quit)
-			{
-
-				//Handle events on queue
-				while (SDL_PollEvent(&e) != 0)
-				{
-					//User requests quit
-					if (e.type == SDL_QUIT)
-					{
-						quit = true;
-					}
-					else if (e.key.keysym.sym == SDLK_v)
-					{
-						showAccVector = !showAccVector;
-					}
-					else if (e.key.keysym.sym == SDLK_SPACE)
-					{
-						if (m > 5) {
-							Laser_fired = true;
-							m = 0;
-						}
-				}
-					m++;
-				//Handle input for the SpaceCraft
-				SpaceCraft.handleEvent(e);
-				//SpaceCraft.rotation_Matrix();
-			}
-
-/*_____________________________________________________________________________________________________________*/
-//create LaserShot Object when Space was pressed - store in specified vector - reset Flag
-				if (Laser_fired) {
-				for (auto& element : LaserShots) {
- 					if (element == nullptr) {
-						element = std::move(std::make_unique<LaserShot>(SpaceCraft.getCenterCoords(gSpaceCraftTexture), SpaceCraft.getLaserVelCoords()));
-						Laser_fired = false;
-						//std::cout << &element << std::endl;
-					}
- 				}
-				if (Laser_fired) {
-					LaserShots.push_back(std::move(std::make_unique<LaserShot>(SpaceCraft.getCenterCoords(gSpaceCraftTexture), SpaceCraft.getLaserVelCoords())));
-					Laser_fired = false;
-				}
-				
-				//std::cout << "Size of LaserShots: " << LaserShots.size() << std::endl;
-				
-			}
-/*_____________________________________________________________________________________________________________*/
-				if (Enemy_just_destroyed) {
-					
-					spawning_delay_counter--;
-					if (spawning_delay_counter == 0) {
-						Enemy_just_destroyed = false;
-						spawning_delay_counter = spawning_delay;
-					};
-			}
-
-            //create Enemy Object
-			if (cnt_Enemies < Enemies_at_once && !Enemy_just_destroyed) {
-				bool create_Enemy = true; // Flag for logic inside if Statement
-			//create LaserShot Object when Space was pressed - store in specified vector - reset Flage
-				for (auto& element : Enemies) {
-					if (element == nullptr) {
-						element = std::move(std::make_unique<Enemy>());
-						cnt_Enemies++;
-						create_Enemy = false;
-						//std::cout << &element << std::endl;
-					}
-				}
-				if (create_Enemy) {
-					Enemies.push_back(std::move(std::make_unique<Enemy>()));
-					cnt_Enemies++;
-					create_Enemy = false;
-				}
-				std::cout << "Size of Enemies: " << Enemies.size() << std::endl;
-				std::cout << "cnt_Enemies: " << cnt_Enemies << std::endl;
-			}
-/*_____________________________________________________________________________________________________________*/
-
-			
-
-			//Move the SpaceCraft
-			SpaceCraft.move(planet, gSpaceCraftTexture, gPlanetTexture);
-
-			//Clear screen
-			SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0x00);
-			SDL_RenderClear(gRenderer);
-
-			// render Laser Shots
-			if (!LaserShots.empty()) {
-				for (auto& element : LaserShots) {
-					if (element != nullptr) {
-						element->render(gRenderer);
-						element->move();
-					}
-				}
-			}
-
-			// render Enemies
-			if (!Enemies.empty()) {
-				for (auto& element : Enemies) {
-					if (element != nullptr) {
-						element->render(gRenderer, gEnemyTexture, gExplosionTexture);
-/*_________________________________________________________________________________________*/
-						//Purpose -> Collision detection, Visualize the skeleton => when laser hits the skelleton than sets collision_detected to true
-						int x1 = Texture_Boundaries(Bottom_X,element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int y1 = Texture_Boundaries(Bottom_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int x2 = Texture_Boundaries(Top_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int y2 = Texture_Boundaries(Top_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-
-						int vertical_x1 = Texture_Boundaries(Left_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int vertical_y1 = Texture_Boundaries(Left_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int vertical_x2 = Texture_Boundaries(Right_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						int vertical_y2 = Texture_Boundaries(Right_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-						
-						//system("cls");
-						/*std::cout << element->get_mAlpha() << std::endl;
-						if (std::tan(element->get_mAlpha() * M_PI / 180) != INFINITY) {
-							std::cout << std::tan(element->get_mAlpha() * M_PI / 180) << std::endl;
-						}*/
-
-					    SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
-						SDL_RenderDrawLine(gRenderer, x1, y1, x2, y2);
-						SDL_RenderDrawLine(gRenderer, vertical_x1, vertical_y1, vertical_x2, vertical_y2);
-/*_________________________________________________________________________________________*/
-					}
-				}
-			}
-
-			planet.render(gPlanetTexture);
-
-			//Render objects
-			SpaceCraft.render(gRenderer, gSpaceCraftTexture);
-		
-			if (showAccVector) {
-				acceleration.render(gRenderer, gSpaceCraftTexture, gPlanetTexture, SpaceCraft, planet);
-			} 
-			
-			//SpaceCraft.renderAccDirection(gRenderer);
-		
-/*_______________________________________________________________________________________________________*/
-			//destroy Laser Shots when out of bounds
-			if (!LaserShots.empty()) {
-				for (auto& element : LaserShots) {
-					
-					if (element != nullptr) {
-						int x, y = 0;
-						x = element->getX_bottom();
-						y = element->getY_bottom();
-
-						if (x < 0 || x > SCREEN_WIDTH || y < 0 || y > SCREEN_HEIGHT)
- 							element.reset();
-					}	
-				}
-			} 
-/*_________________________________________________________________________________________________________*/
-			//destroy Enemy when collision detected
-			if (!Enemies.empty()) {
-				for (auto& element : Enemies) {
-
-					if (element != nullptr) {
-						int x, y{ 0 };
-						x = element->get_mPosX() + gEnemyTexture.getCenterX();
-						y = element->get_mPosY() + gEnemyTexture.getCenterY();
-
-					//collision detection Enemey with Planet
-						if (x < (SCREEN_WIDTH / 2 + 50) && x >(SCREEN_WIDTH / 2 - 50) && y < SCREEN_HEIGHT / 2 + 50 && y > SCREEN_HEIGHT / 2 - 50) {
-							element->set_collision_detected();
-						}
-
-						//collision detection Enemy with Charakter SpaceCraft
-						int x_SpaceCraft = SpaceCraft.getmPosX() + gSpaceCraftTexture.getCenterX();
-						int y_SpaceCraft = SpaceCraft.getmPosY() + gSpaceCraftTexture.getCenterY();
-
-						/*if (abs(x - x_SpaceCraft) < gEnemyTexture.getWidth() / 2 + gSpaceCraftTexture.getWidth() / 2
-							&& abs(y - y_SpaceCraft) < gEnemyTexture.getHeight()/2 + gSpaceCraftTexture.getHeight()/2
-							&& !(element->get_collision_detected())) {
-						*/
-					
-						if(!(element->get_collision_detected())){
-							
-							int A_x = Texture_Boundaries(Bottom_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-							int A_y = Texture_Boundaries(Bottom_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-							
-							int B_x = Texture_Boundaries(Right_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-							int B_y = Texture_Boundaries(Right_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-
-							int D_x = Texture_Boundaries(Left_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-							int D_y = Texture_Boundaries(Left_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
-							
-							
-							if (point_within_area(x_SpaceCraft, y_SpaceCraft, A_x, A_y, B_x, B_y, D_x, D_y)) {
-								element->set_collision_detected();
+			while (!quit) {
+				while (menu && !quit) {
+					while (!gameloop && !quit) {
+						gStart_Game_Texture.render(100, 100);
+						while (SDL_PollEvent(&e) != 0)
+						{
+							//User requests quit
+							if (e.type == SDL_QUIT)
+							{
+								quit = true;
 							}
-							for (auto& lasershot : LaserShots) {
-								if (lasershot != nullptr) {
-									x_SpaceCraft = lasershot->getX_top();
-									y_SpaceCraft = lasershot->getY_top();
-									//std::cout << "x_SpaceCraft: " << x_SpaceCraft << std::endl << "y_SpaceCraft: " << y_SpaceCraft << std::endl;
-									if (point_within_area(x_SpaceCraft, y_SpaceCraft, A_x, A_y, B_x, B_y, D_x, D_y))
-										element->set_collision_detected();
+							else if (e.key.keysym.sym == SDLK_RETURN)
+							{
+								gameloop = true;
+								menu = false;
+							}
+						}
+						SDL_RenderPresent(gRenderer);
+					}
+
+
+					//While application is running
+					while (gameloop && !quit)
+					{
+
+						//Handle events on queue
+						while (SDL_PollEvent(&e) != 0)
+						{
+							//User requests quit
+							if (e.type == SDL_QUIT)
+							{
+								quit = true;
+							}
+							else if (e.key.keysym.sym == SDLK_ESCAPE)
+							{
+								menu = !menu;
+								gameloop = false;
+							}
+							else if (e.key.keysym.sym == SDLK_v)
+							{
+								acceleration.toggle_showAccVector();
+
+							}
+							else if (e.key.keysym.sym == SDLK_SPACE)
+							{
+								if (frame_SDL_PollEvent > delay_LaserShot) {
+									Laser_fired = true;
+									frame_SDL_PollEvent = 0;
+								}
+							}
+							frame_SDL_PollEvent++;
+							//Handle input for the SpaceCraft
+							SpaceCraft.handleEvent(e);
+							//SpaceCraft.rotation_Matrix();
+						}
+
+						/*_____________________________________________________________________________________________________________*/
+						//create LaserShot Object when Space was pressed - store in specified vector - reset Flag
+						if (Laser_fired) {
+							for (auto& element : LaserShots) {
+								if (element == nullptr) {
+									element = std::move(std::make_unique<LaserShot>(SpaceCraft.getCenterCoords(gSpaceCraftTexture), SpaceCraft.getLaserVelCoords()));
+									Laser_fired = false;
+									//std::cout << &element << std::endl;
+								}
+							}
+							if (Laser_fired) {
+								LaserShots.push_back(std::move(std::make_unique<LaserShot>(SpaceCraft.getCenterCoords(gSpaceCraftTexture), SpaceCraft.getLaserVelCoords())));
+								Laser_fired = false;
+							}
+
+							//std::cout << "Size of LaserShots: " << LaserShots.size() << std::endl;
+
+						}
+						/*_____________________________________________________________________________________________________________*/
+						if (Enemy_just_destroyed) {
+
+							spawning_delay_counter--;
+							if (spawning_delay_counter == 0) {
+								Enemy_just_destroyed = false;
+								spawning_delay_counter = spawning_delay;
+							};
+						}
+
+						//create Enemy Object
+						if (cnt_Enemies < Enemies_at_once && !Enemy_just_destroyed) {
+							bool create_Enemy = true; // Flag for logic inside if Statement
+							//create LaserShot Object when Space was pressed - store in specified vector - reset Flage
+							for (auto& element : Enemies) {
+								if (element == nullptr) {
+									element = std::move(std::make_unique<Enemy>());
+									cnt_Enemies++;
+									create_Enemy = false;
+									//std::cout << &element << std::endl;
+								}
+							}
+							if (create_Enemy) {
+								Enemies.push_back(std::move(std::make_unique<Enemy>()));
+								cnt_Enemies++;
+								create_Enemy = false;
+							}
+							//std::cout << "Size of Enemies: " << Enemies.size() << std::endl;
+							//std::cout << "cnt_Enemies: " << cnt_Enemies << std::endl;
+						}
+						/*_____________________________________________________________________________________________________________*/
+
+
+
+									//Move the SpaceCraft
+						SpaceCraft.move(planet, gSpaceCraftTexture, gPlanetTexture);
+
+						//Clear screen
+						SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0x00);
+						SDL_RenderClear(gRenderer);
+
+						// render Laser Shots
+						if (!LaserShots.empty()) {
+							for (auto& element : LaserShots) {
+								if (element != nullptr) {
+									element->render(gRenderer);
+									element->move();
 								}
 							}
 						}
-					
-						if(element->get_exploded()){
-							element.reset();
-							cnt_Enemies--;
-							Enemy_just_destroyed = true;
-							spawning_delay -= 10;
-							
-							
-							//increase Enemies spwaning at once after 10 destroyed Enemies
-							if (++Enemies_destroyed % 10 == 0 && Enemies_destroyed != 0) {
-								Enemies_at_once++;
-								spawning_delay = 100;
+
+						// render Enemies
+						if (!Enemies.empty()) {
+							for (auto& element : Enemies) {
+								if (element != nullptr) {
+									element->render(gRenderer, gEnemyTexture, gExplosionTexture);
+									/*_________________________________________________________________________________________*/
+
+									if (acceleration.get_showAccVector()) {
+										//Purpose -> Collision detection, Visualize the skeleton => when laser hits the skelleton than sets collision_detected to true
+										int x1 = Texture_Boundaries(Bottom_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+										int y1 = Texture_Boundaries(Bottom_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+										int x2 = Texture_Boundaries(Top_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+										int y2 = Texture_Boundaries(Top_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+
+										int vertical_x1 = Texture_Boundaries(Left_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+										int vertical_y1 = Texture_Boundaries(Left_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+										int vertical_x2 = Texture_Boundaries(Right_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+										int vertical_y2 = Texture_Boundaries(Right_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+
+										//system("cls");
+										/*std::cout << element->get_mAlpha() << std::endl;
+										if (std::tan(element->get_mAlpha() * M_PI / 180) != INFINITY) {
+											std::cout << std::tan(element->get_mAlpha() * M_PI / 180) << std::endl;
+										}*/
+
+										SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
+										SDL_RenderDrawLine(gRenderer, x1, y1, x2, y2);
+										SDL_RenderDrawLine(gRenderer, vertical_x1, vertical_y1, vertical_x2, vertical_y2);
+									}
+									/*_________________________________________________________________________________________*/
+								}
 							}
-							std::cout << "Enemies destroyed: " << Enemies_destroyed << std::endl;
-							std::cout << "spawning_delay: " << spawning_delay << std::endl;
-							std::cout << "Enemies at once: " << Enemies_at_once << std::endl;
 						}
-					}
+
+						planet.render(gPlanetTexture);
+
+						//Render objects
+						SpaceCraft.render(gRenderer, gSpaceCraftTexture);
+
+						if (acceleration.get_showAccVector()) {
+							acceleration.render(gRenderer, gSpaceCraftTexture, gPlanetTexture, SpaceCraft, planet);
+						}
+
+						//SpaceCraft.renderAccDirection(gRenderer);
+
+			/*_______________________________________________________________________________________________________*/
+						//destroy Laser Shots when out of bounds
+						if (!LaserShots.empty()) {
+							for (auto& element : LaserShots) {
+
+								if (element != nullptr) {
+									int x, y = 0;
+									x = element->getX_bottom();
+									y = element->getY_bottom();
+
+									if (x < 0 || x > SCREEN_WIDTH || y < 0 || y > SCREEN_HEIGHT)
+										element.reset();
+								}
+							}
+						}
+						/*_________________________________________________________________________________________________________*/
+									//destroy Enemy when collision detected
+						if (!Enemies.empty()) {
+							for (auto& element : Enemies) {
+
+								if (element != nullptr) {
+									int x, y{ 0 };
+									x = element->get_mPosX() + gEnemyTexture.getCenterX();
+									y = element->get_mPosY() + gEnemyTexture.getCenterY();
+
+									//collision detection Enemey with Planet
+									if (x < (SCREEN_WIDTH / 2 + 50) && x >(SCREEN_WIDTH / 2 - 50) && y < SCREEN_HEIGHT / 2 + 50 && y > SCREEN_HEIGHT / 2 - 50) {
+										element->set_collision_detected();
+										element->set_collision_with_enemy();
+										
+										std::cout << "health : " << static_cast<int>(planet.get_health());
+									}
+
+									//collision detection Enemy with Charakter SpaceCraft
+									int x_SpaceCraft = SpaceCraft.getmPosX() + gSpaceCraftTexture.getCenterX();
+									int y_SpaceCraft = SpaceCraft.getmPosY() + gSpaceCraftTexture.getCenterY();
+
+									/*if (abs(x - x_SpaceCraft) < gEnemyTexture.getWidth() / 2 + gSpaceCraftTexture.getWidth() / 2
+										&& abs(y - y_SpaceCraft) < gEnemyTexture.getHeight()/2 + gSpaceCraftTexture.getHeight()/2
+										&& !(element->get_collision_detected())) {
+									*/
+
+									if (!(element->get_collision_detected())) {
+
+										int A_x = Texture_Boundaries(Bottom_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+										int A_y = Texture_Boundaries(Bottom_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+
+										int B_x = Texture_Boundaries(Right_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+										int B_y = Texture_Boundaries(Right_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+
+										int D_x = Texture_Boundaries(Left_X, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+										int D_y = Texture_Boundaries(Left_Y, element->get_mPosX(), element->get_mPosY(), element->get_mAlpha(), gEnemyTexture);
+
+
+										if (point_within_area(x_SpaceCraft, y_SpaceCraft, A_x, A_y, B_x, B_y, D_x, D_y)) {
+											element->set_collision_detected();
+											element->set_collision_with_spacecraft();
+										}
+										for (auto& lasershot : LaserShots) {
+											if (lasershot != nullptr) {
+												int x_Laser_top = lasershot->getX_top();
+												int y_Laser_top = lasershot->getY_top();
+												int x_Laser_bottom = lasershot->getX_bottom();
+												int y_Laser_bottom = lasershot->getY_bottom();
+
+												//std::cout << "x_SpaceCraft: " << x_SpaceCraft << std::endl << "y_SpaceCraft: " << y_SpaceCraft << std::endl;
+												if (point_within_area(x_Laser_top, y_Laser_top, A_x, A_y, B_x, B_y, D_x, D_y)
+													|| point_within_area(x_Laser_bottom, y_Laser_bottom, A_x, A_y, B_x, B_y, D_x, D_y)) {
+													element->set_collision_detected();
+													element->set_collision_with_lasershot();
+													
+												}
+											}
+										}
+									}
+
+									if (element->get_exploded()) {
+										
+										switch (element->get_collision_type()) {
+
+										case with_lasershot : gUI.increment_cnt_Enemies_Destroyed();
+											break;
+
+										case with_spacecraft: gUI.increment_cnt_Enemies_Destroyed();
+															/*update damage to spacecraft*/
+											break;
+
+										case with_planet: /*update damage to planet*/
+
+										case no_collision: 
+											break;
+
+										}
+										if (element->get_collision_type() == with_enemy) {
+											planet.damage(with_enemy);
+										}
+										element.reset();
+										cnt_Enemies--;
+										Enemy_just_destroyed = true;
+										spawning_delay -= 10;
+
+
+										//increase Enemies spwaning at once after 10 destroyed Enemies
+										if (++Enemies_destroyed % 10 == 0 && Enemies_destroyed != 0) {
+											Enemies_at_once++;
+											spawning_delay = 100;
+										}
+										/*std::cout << "Enemies destroyed: " << Enemies_destroyed << std::endl;
+										std::cout << "spawning_delay: " << spawning_delay << std::endl;
+										std::cout << "Enemies at once: " << Enemies_at_once << std::endl;*/
+									}
+								}
+							}
+						}
+
+						gUI.render_cnt_Enemies_Destroyed(Enemies_Destroyed_Text_Texture, gDigits_Texture);
+
+						gUI.render_health_bar(planet.get_health());
+
+						//avoid growing vector large in size
+						/* if (LaserShots.size() == 3) {
+							LaserShots.clear();
+						}
+						std::cout << "LaserShots - Size: " << LaserShots.size() << std::endl;
+						*/
+
+
+
+						//Update screen
+						SDL_RenderPresent(gRenderer);
+
+
+
+
+						//debug-test________________________
+						//std::cout << "SpaceCraft CenterCoords: " << SpaceCraft.getCenterCoords(gSpaceCraftTexture).at(0) << std::endl;
+
+
 				}
 			}
-			
-			//avoid growing vector large in size
-			/* if (LaserShots.size() == 3) {
-				LaserShots.clear();
-			}
-			std::cout << "LaserShots - Size: " << LaserShots.size() << std::endl;
-			*/
-
-			//Update screen
-			SDL_RenderPresent(gRenderer);
-
-
-
-
-			//debug-test________________________
-			//std::cout << "SpaceCraft CenterCoords: " << SpaceCraft.getCenterCoords(gSpaceCraftTexture).at(0) << std::endl;
-
-
 		}
 	}
 }
-
 	//Free resources and close SDL
 	close();
 

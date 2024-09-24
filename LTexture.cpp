@@ -55,8 +55,52 @@ bool LTexture::loadFromFile(std::string path)
 	return mTexture != NULL;
 }
 
+/*experiment*/
+bool LTexture::loadFontFromFile(std::string path, std::wstring &text)
+{
+	//Get rid of preexisting texture
+	free();
+
+	//The final texture
+	SDL_Texture* newTexture = NULL;
+
+	//Load Font at specified path
+	TTF_Font* font = TTF_OpenFont(path.c_str(), 32);
+
+	SDL_Surface* loadedSurface = TTF_RenderUNICODE_Blended_Wrapped(font, (const Uint16*)text.c_str(), SDL_Color{255, 255, 255, 255}, 400);
+	if (loadedSurface == NULL)
+	{
+		printf("Unable to load Font %s! SDL_tff Error: %s\n", path.c_str(), IMG_GetError());
+	}
+	else
+	{
+		//Color key image
+		SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF));
+
+		//Create texture from surface pixels
+		newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+		if (newTexture == NULL)
+		{
+			printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+		}
+		else
+		{
+			//Get image dimensions
+			mWidth = loadedSurface->w;
+			mHeight = loadedSurface->h;
+		}
+
+		//Get rid of old loaded surface
+		SDL_FreeSurface(loadedSurface);
+	}
+
+	//Return success
+	mTexture = newTexture;
+	return mTexture != NULL;
+}
+
 #if defined(SDL_TTF_MAJOR_VERSION)
-bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor)
+bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor, TTF_Font *gFont)
 {
 	//Get rid of preexisting texture
 	free();

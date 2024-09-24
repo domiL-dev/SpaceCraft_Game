@@ -1,6 +1,6 @@
 #include "ACCvector.h"
 
-ACCvector::ACCvector() {
+ACCvector::ACCvector() :showAccVector{ false } {
 
 }
 
@@ -61,4 +61,12 @@ void ACCvector::render(SDL_Renderer* renderer, LTexture& gSpaceCraftTexture, LTe
 	SDL_RenderDrawLine(renderer, x1, y1, x3, y3);
 
 	
+}
+
+void ACCvector::toggle_showAccVector() {
+	showAccVector = !showAccVector;
+}
+
+bool ACCvector::get_showAccVector() {
+	return showAccVector;
 }
