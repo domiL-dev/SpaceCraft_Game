@@ -2,7 +2,7 @@
 
 This Repository contains all the files of the project. When I will have some more spare time i want to state the details about the project progress from the beginning on, what challenges have arisen and the learning outcomes.
 
-In this Project I wanted to apply some learned Coding skills, so i created a little game.
+In this Project I wanted to apply some learned Coding skills, so i created a little game. I used Visual Studio 2022 to create the Project and I used SDL2 for the graphics.
 
 This is a little preview how the interface looks like
 
